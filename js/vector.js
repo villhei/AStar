@@ -3,6 +3,13 @@ function Vector(x, y) {
     this.y = y;
 }
 
+Vector.prototype.equals = function(other) {
+    if(this.x === other.x && this.y === other.y) {
+        return true;
+    }
+    return false;
+}
+
 Vector.prototype.dot = function(other) {
     return this.x * other.x + this.y * other.y;
 };
