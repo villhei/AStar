@@ -1,0 +1,33 @@
+.navigationtable {
+    border: 1px solid black;
+}
+
+.navigationtable td {
+    width: 10px;
+    height: 10px;
+    border: 1px solid black;
+}
+
+.finish {
+    background-color: #4169e1;
+}
+
+.start {
+    background-color: red;
+}
+
+.wall {
+    background-color: black;
+}
+
+.path {
+    background-color: green;
+}
+
+.neighborgh {
+    background-color: yellow;
+}
+
+.blank {
+    background-color: white;
+}

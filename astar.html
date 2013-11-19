@@ -6,13 +6,22 @@
 <script type="text/javascript" src="lib/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="js/vector.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
+<link type="text/css" rel="stylesheet" href="css/graph.css" />
 
 <h1>console-star</h1>
 
-<div id="canvascontainer">
-    <canvas id="canvas2d" width="500px" height="500px">
-    </canvas>
-</div>
+<table class="navigationtable" id="graphstart">
+
+</table>
+
+
+<table class="navigationtable" id="graphduring">
+
+</table>
+
+<table class="navigationtable" id="graphfinish">
+
+</table>
 <p>A* (A star) is a path finding algorithm</p>
 
 </body>
@@ -21,8 +30,7 @@
 var Graph = {
     array:[],
 
-
-    print:function (arrayOfVectors, symbol) {
+    print:function (targetElement, arrayOfVectors, symbol) {
         var printTarget = this.array;
         if (arrayOfVectors) {
             TYPE.arrayContains(function (element) {
@@ -38,11 +46,33 @@ var Graph = {
                     }
             );
         }
+        targetElement.html('');
 
         forEach(printTarget, function (row) {
-            logStuff(row);
+            var newRow = $('<tr></tr>');
+            forEach(row, function(column) {
+                var cell;
+                if(column == 'w') {
+                    cell = $('<td class="wall"></td>')
+                }
+                else if(column == 'S') {
+                    cell = $('<td class="start"></td>')
+                }
+                else if(column == 'F') {
+                    cell = $('<td class="finish"></td>')
+                }
+                else if(column == 'x') {
+                    cell = $('<td class="path"></td>')
+                }
+                else if(column == 'n') {
+                    cell = $('<td class="neighborgh"></td>')
+                } else {
+                    cell = $('<td class="blank"></td>')
+                }
+                newRow.append(cell);
+            })
+            targetElement.append(newRow);
         })
-        console.log(" ");
     },
 
     getRow:function (rowNumber) {
@@ -115,10 +145,10 @@ function popArrayMinimum(array, heuristic) {
         var heura = heuristic(a);
         var heurb = heuristic(b);
         if (a < b) {
-            return -1;
+            return 1;
         }
         if (a > b) {
-            return 1;
+            return -1;
         }
         return 0;
     });
@@ -126,7 +156,7 @@ function popArrayMinimum(array, heuristic) {
 }
 
 function costEstimate(from, to) {
-    return Math.abs(from.x - to.x) + Math.abs(from.y + to.y);
+    return from.distance(to);
 }
 
 function findVectorIndex(array, vector) {
@@ -217,7 +247,7 @@ function aStar(graph, start, finish) {
                 }
         );
         console.log("openset");
-        Graph.print(openSet, 'n');
+        Graph.print($('#graphduring'), openSet, 'n');
     }
 }
 function replayPath(vector) {
@@ -229,41 +259,44 @@ function replayPath(vector) {
     }
     return result;
 }
+//
+//Graph.array = [
+//    ['0', 'w', '0', '0', 'w'],
+//    ['0', 'w', '0', '0', 'w'],
+//    ['0', 'w', '0', '0', '0'],
+//    ['0', 'w', 'w', 'w', '0'],
+//    ['0', '0', '0', '0', '0']
+//];
+//
+///*
+// Initial debug print
+// */
+//logStuff("**** FROM START");
+//
+//var start = new Vector(0, 0);
+//var finish = new Vector(2, 0);
+//Graph.setGraphPoint(start, 'S');
+//Graph.setGraphPoint(finish, 'F');
+//
+//Graph.print($('#graphstart'));
+//
+//var path = aStar(Graph, start, finish);
+//
+//Graph.print($('#graphfinish'), path, 'x');
+
 
 Graph.array = [
-    ['0', 'w', '0', '0', 'w'],
-    ['0', 'w', '0', '0', 'w'],
-    ['0', 'w', '0', '0', '0'],
-    ['0', 'w', 'w', 'w', '0'],
-    ['0', '0', '0', '0', '0']
-];
-
-/*
- Initial debug print
- */
-logStuff("**** FROM START");
-
-var start = new Vector(0, 0);
-var finish = new Vector(2, 0);
-Graph.setGraphPoint(start, 'S');
-Graph.setGraphPoint(finish, 'F');
-
-Graph.print();
-
-var path = aStar(Graph, start, finish);
-
-Graph.print(path, 'x');
-
-
-Graph.array = [
-    ['0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w'],
-    ['0', 'w', '0', '0', 'w', 'w', 'w', 'w', '0', 'w'],
-    ['0', 'w', '0', '0', '0', 'w', 'w', '0', '0', 'w'],
-    ['0', 'w', 'w', 'w', '0', 'w', 'w', '0', '0', 'w'],
-    ['0', '0', '0', '0', '0', '0', 'w', '0', '0', 'w'],
-    ['0', 'w', '0', '0', '0', 'w', 'w', '0', '0', 'w'],
-    ['0', 'w', 'w', 'w', '0', 'w', 'w', '0', '0', 'w'],
-    ['0', '0', '0', 'w', '0', '0', 'w', '0', '0', 'w']
+    ['0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w','0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', '0', '0', 'w', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', 'w', '0', '0', '0', '0','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', 'w', 'w', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', '0', '0', '0', '0', '0', 'w', 'w', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', '0', 'w', '0', '0', '0','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', 'w', 'w', '0', 'w', '0', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', '0', '0', 'w', '0', 'w', '0', '0', '0', '0','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', 'w', '0', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', 'w', 'w', '0', 'w', '0', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', '0', '0', 'w', '0', 'w', '0', '0', '0', 'w','0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w']
 ];
 
 /*
@@ -272,15 +305,16 @@ Graph.array = [
 logStuff("**** SECOND ITER");
 
 var start = new Vector(0, 0);
-var finish = new Vector(8, 7);
+var finish = new Vector(18, 7);
 Graph.setGraphPoint(start, 'S');
 Graph.setGraphPoint(finish, 'F');
 
-Graph.print();
+Graph.print($('#graphstart'));
 
 var path = aStar(Graph, start, finish);
 
-Graph.print(path, 'x');
+Graph.print($('#graphfinish'), path, 'x');
+/*
 
 logStuff("**** THIRD ITER");
 
@@ -292,9 +326,11 @@ Graph.array = [
     ['0', '0', '0', '0', '0']
 ];
 
+*/
 /*
  Initial debug print
- */
+ *//*
+
 logStuff("**** FROM START");
 
 var start = new Vector(0, 0);
@@ -307,6 +343,7 @@ Graph.print();
 var path = aStar(Graph, start, finish);
 
 Graph.print(path, 'x');
+*/
 
 
 </script>
