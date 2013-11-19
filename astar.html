@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<script type="text/javascript" src="lib/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="js/vector.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+
+<h1>console-star</h1>
+
+<div id="canvascontainer">
+    <canvas id="canvas2d" width="500px" height="500px">
+    </canvas>
+</div>
+<p>A* (A star) is a path finding algorithm</p>
+
+</body>
+
+<script>
+var Graph = {
+    array:[],
+
+
+    print:function (arrayOfVectors, symbol) {
+        var printTarget = this.array;
+        if (arrayOfVectors) {
+            TYPE.arrayContains(function (element) {
+                if (element instanceof Vector) {
+                    return true;
+                }
+                return false;
+            }, arrayOfVectors);
+            printTarget = this.array.slice();
+            symbol = symbol ? symbol : '*';
+            forEach(arrayOfVectors, function (element) {
+                        printTarget[element.y][element.x] = symbol;
+                    }
+            );
+        }
+
+        forEach(printTarget, function (row) {
+            logStuff(row);
+        })
+        console.log(" ");
+    },
+
+    getRow:function (rowNumber) {
+        if (!arrayHasIndex(this.array, rowNumber)) {
+            throw new RangeError("Out of range, with rownumber: " + rowNumber);
+        }
+        return this.array[rowNumber];
+    },
+
+    withinBounds:function (vector) {
+        testVector(vector);
+        return (arrayHasIndex(this.array, vector.y) && arrayHasIndex(this.getRow(vector.y), vector.x));
+    },
+
+    setGraphPoint:function (vector, target) {
+        testVector(vector);
+        if (!this.withinBounds(vector)) {
+            logStuff(("Out of range with value: ", vector));
+            throw new RangeError("Out of range with value: " + vector);
+        }
+        this.array[vector.y][vector.x] = target;
+    },
+
+    getGraphPoint:function (vector) {
+        return this.array[vector.y][vector.x];
+    },
+
+    getNeighborghs:function (position) {
+        testVector(position);
+        var candidates = [
+            new Vector(position.x - 1, position.y), // LEFT
+            new Vector(position.x + 1, position.y), // RIGHT
+            new Vector(position.x, position.y - 1), // DOWN
+            new Vector(position.x, position.y + 1)  // UP
+        ];
+        var result = [];
+        var _this = this;
+        forEach(candidates, function (candidate) {
+            if (_this.withinBounds(candidate) && _this.getGraphPoint(candidate) !== 'w') {
+                result.push(candidate);
+            }
+        });
+        return result;
+    }
+}
+
+function getLabel(vector) {
+    return vector.toString()
+}
+
+function findArrayMinimum(array, heuristic) {
+    if (!TYPE.isArray(array)) {
+        logStuff(array);
+        throw new TypeError("Expected an array, got a: " + array);
+    } else if (!TYPE.isFunction(heuristic)) {
+        logStuff(heuristic);
+        throw new TypeError("Expected a function, got a : " + heuristic);
+    }
+    var minimum = null;
+    forEach(array, function (item, index) {
+        if (minimum == null || heuristic(item) < heuristic(array[minimum])) {
+            minimum = index;
+        }
+    })
+    return minimum;
+}
+
+function popArrayMinimum(array, heuristic) {
+    array.sort(function compare(a, b) {
+        var heura = heuristic(a);
+        var heurb = heuristic(b);
+        if (a < b) {
+            return -1;
+        }
+        if (a > b) {
+            return 1;
+        }
+        return 0;
+    });
+    return array.shift();
+}
+
+function costEstimate(from, to) {
+    return Math.abs(from.x - to.x) + Math.abs(from.y + to.y);
+}
+
+function findVectorIndex(array, vector) {
+    testVector(vector);
+    if (!TYPE.isArray(array)) {
+        throw new TypeError("Expected an array, got a: " + array);
+    }
+    var index = -1;
+    forEach(array, function find_index(candidate, arrIndex) {
+        if (index === -1) {
+            if (candidate.equals(vector)) {
+                index = arrIndex;
+            }
+        }
+    })
+    return index;
+}
+
+function arrayContainsVector(array, vector) {
+    testVector(vector);
+    if (!TYPE.isArray(array)) {
+        throw new TypeError("Expected an array, got a: " + array);
+    }
+    var found = false;
+    forEach(array, function vectorEquals(element) {
+        testVector(element);
+        if (vector.equals(element)) {
+            found = true;
+        }
+    });
+    return found;
+}
+
+function removeVectorFromArray(array, vector) {
+
+    var index = findVectorIndex(array, vector);
+    if (index > -1) {
+        array.splice(index, 1);
+    }
+    logStuff(vector, " that from ", array);
+
+}
+
+function aStar(graph, start, finish) {
+    var openSet = [];
+    openSet.push(start);
+    var closedSet = [];
+    var came_from = {};
+
+    var g_score = {};
+    var f_score = {};
+    var startLabel = getLabel(start);
+    g_score[startLabel] = 0;
+    f_score[startLabel] = g_score[startLabel] + costEstimate(start, finish);
+
+    while (openSet.length > 0) {
+        var current = popArrayMinimum(openSet, function distanceToGoal(candidate) {
+            return Math.abs(finish.x - candidate.x) + Math.abs(finish.y - candidate.y);
+        });
+        if (current.equals(finish)) {
+            logStuff("VICTORY! CURRENT: ", current, " GOAL:", finish);
+            return replayPath(current);
+        }
+
+        removeVectorFromArray(openSet, current);
+        closedSet.push(current);
+
+        var currentLabel = getLabel(current);
+
+        neighborghs = Graph.getNeighborghs(current);
+        logStuff("found candidates: ", neighborghs);
+        forEach(neighborghs, function (element) {
+                    var vectorLabel = getLabel(element);
+                    var tentative_g_score = g_score[currentLabel] + costEstimate(current, element);
+                    var tentative_f_score = tentative_g_score + costEstimate(element, finish);
+                    if (arrayContainsVector(closedSet, element) && tentative_f_score >= f_score[vectorLabel]) {
+                        return;
+                    }
+                    if (!arrayContainsVector(openSet, element) || tentative_f_score < f_score[vectorLabel]) {
+                        element.parent = current;
+                        g_score[vectorLabel] = tentative_g_score;
+                        f_score[vectorLabel] = tentative_f_score;
+                        if (!arrayContainsVector(openSet, element)) {
+                            logStuff("pushed new : ", element);
+                            openSet.push(element);
+                        }
+                    }
+                }
+        );
+        console.log("openset");
+        Graph.print(openSet, 'n');
+    }
+}
+function replayPath(vector) {
+    testVector(vector);
+    var result = [];
+    while (vector.parent) {
+        result.push(vector);
+        vector = vector.parent;
+    }
+    return result;
+}
+
+Graph.array = [
+    ['0', 'w', '0', '0', 'w'],
+    ['0', 'w', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0'],
+    ['0', 'w', 'w', 'w', '0'],
+    ['0', '0', '0', '0', '0']
+];
+
+/*
+ Initial debug print
+ */
+logStuff("**** FROM START");
+
+var start = new Vector(0, 0);
+var finish = new Vector(2, 0);
+Graph.setGraphPoint(start, 'S');
+Graph.setGraphPoint(finish, 'F');
+
+Graph.print();
+
+var path = aStar(Graph, start, finish);
+
+Graph.print(path, 'x');
+
+
+Graph.array = [
+    ['0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', 'w', 'w', 'w', 'w', '0', 'w'],
+    ['0', 'w', '0', '0', '0', 'w', 'w', '0', '0', 'w'],
+    ['0', 'w', 'w', 'w', '0', 'w', 'w', '0', '0', 'w'],
+    ['0', '0', '0', '0', '0', '0', 'w', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', 'w', 'w', '0', '0', 'w'],
+    ['0', 'w', 'w', 'w', '0', 'w', 'w', '0', '0', 'w'],
+    ['0', '0', '0', 'w', '0', '0', 'w', '0', '0', 'w']
+];
+
+/*
+ Initial debug print
+ */
+logStuff("**** SECOND ITER");
+
+var start = new Vector(0, 0);
+var finish = new Vector(8, 7);
+Graph.setGraphPoint(start, 'S');
+Graph.setGraphPoint(finish, 'F');
+
+Graph.print();
+
+var path = aStar(Graph, start, finish);
+
+Graph.print(path, 'x');
+
+logStuff("**** THIRD ITER");
+
+Graph.array = [
+    ['0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0']
+];
+
+/*
+ Initial debug print
+ */
+logStuff("**** FROM START");
+
+var start = new Vector(0, 0);
+var finish = new Vector(4, 0);
+Graph.setGraphPoint(start, 'S');
+Graph.setGraphPoint(finish, 'F');
+
+Graph.print();
+
+var path = aStar(Graph, start, finish);
+
+Graph.print(path, 'x');
+
+
+</script>
+</html>
