@@ -123,22 +123,6 @@ function getLabel(vector) {
     return vector.toString()
 }
 
-function findArrayMinimum(array, heuristic) {
-    if (!TYPE.isArray(array)) {
-        logStuff(array);
-        throw new TypeError("Expected an array, got a: " + array);
-    } else if (!TYPE.isFunction(heuristic)) {
-        logStuff(heuristic);
-        throw new TypeError("Expected a function, got a : " + heuristic);
-    }
-    var minimum = null;
-    forEach(array, function (item, index) {
-        if (minimum == null || heuristic(item) < heuristic(array[minimum])) {
-            minimum = index;
-        }
-    })
-    return minimum;
-}
 
 function popArrayMinimum(array, heuristic) {
     array.sort(function compare(a, b) {
@@ -296,7 +280,7 @@ Graph.array = [
     ['0', '0', '0', 'w', '0', 'w', '0', '0', '0', '0','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
     ['0', 'w', '0', '0', '0', 'w', '0', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
     ['0', 'w', 'w', 'w', '0', 'w', '0', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
-    ['0', '0', '0', 'w', '0', 'w', '0', '0', '0', 'w','0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w']
+    ['0', '0', '0', 'w', '0', '0', '0', '0', '0', 'w','0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w']
 ];
 
 /*
