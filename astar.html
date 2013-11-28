@@ -27,6 +27,10 @@
 </body>
 
 <script>
+
+var DEBUG = false;
+
+
 var Graph = {
     array:[],
 
@@ -90,7 +94,9 @@ var Graph = {
     setGraphPoint:function (vector, target) {
         testVector(vector);
         if (!this.withinBounds(vector)) {
-            logStuff(("Out of range with value: ", vector));
+            if(DEBUG) {
+				logStuff(("Out of range with value: ", vector));
+			}
             throw new RangeError("Out of range with value: " + vector);
         }
         this.array[vector.y][vector.x] = target;
@@ -180,7 +186,9 @@ function removeVectorFromArray(array, vector) {
     if (index > -1) {
         array.splice(index, 1);
     }
-    logStuff(vector, " that from ", array);
+    if(DEBUG) {
+		logStuff(vector, " that from ", array);
+	}
 
 }
 
@@ -201,7 +209,9 @@ function aStar(graph, start, finish) {
             return Math.abs(finish.x - candidate.x) + Math.abs(finish.y - candidate.y);
         });
         if (current.equals(finish)) {
-            logStuff("VICTORY! CURRENT: ", current, " GOAL:", finish);
+            if(DEBUG) {
+				logStuff("VICTORY! CURRENT: ", current, " GOAL:", finish);
+			}
             return replayPath(current);
         }
 
@@ -210,9 +220,11 @@ function aStar(graph, start, finish) {
 
         var currentLabel = getLabel(current);
 
-        neighborghs = Graph.getNeighborghs(current);
-        logStuff("found candidates: ", neighborghs);
-        forEach(neighborghs, function (element) {
+        neighbors = Graph.getNeighborghs(current);
+        if(DEBUG) {
+			logStuff("found candidates: ", neighbors);
+		}
+        forEach(neighbors, function (element) {
                     var vectorLabel = getLabel(element);
                     var tentative_g_score = g_score[currentLabel] + costEstimate(current, element);
                     var tentative_f_score = tentative_g_score + costEstimate(element, finish);
@@ -224,16 +236,21 @@ function aStar(graph, start, finish) {
                         g_score[vectorLabel] = tentative_g_score;
                         f_score[vectorLabel] = tentative_f_score;
                         if (!arrayContainsVector(openSet, element)) {
-                            logStuff("pushed new : ", element);
+                            if(DEBUG) {
+								logStuff("pushed new : ", element);
+							}
                             openSet.push(element);
                         }
                     }
                 }
         );
-        console.log("openset");
-        Graph.print($('#graphduring'), openSet, 'n');
+        if(DEBUG) {
+			logStuff("openset");
+        	Graph.print($('#graphduring'), openSet, 'n');
+		}
     }
 }
+
 function replayPath(vector) {
     testVector(vector);
     var result = [];
@@ -272,7 +289,7 @@ function replayPath(vector) {
 Graph.array = [
     ['0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w','0', 'w', '0', '0', '0', '0', '0', '0', '0', 'w'],
     ['0', 'w', '0', '0', '0', '0', '0', 'w', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
-    ['0', 'w', '0', '0', '0', 'w', '0', '0', '0', '0','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
+    ['0', 'w', '0', '0', '0', 'w', '0', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
     ['0', 'w', '0', '0', '0', 'w', 'w', '0', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
     ['0', '0', '0', '0', '0', '0', 'w', 'w', '0', 'w','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],
     ['0', 'w', '0', '0', '0', '0', 'w', '0', '0', '0','0', '0', '0', '0', '0', '0', '0', '0', '0', 'w'],

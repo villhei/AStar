@@ -3,6 +3,13 @@ function Vector(x, y) {
     this.y = y;
 }
 
+function testVector(candidate) {
+	if(candidate instanceof Vector) {
+		return true;
+	}
+	return false;
+}
+
 Vector.prototype.equals = function(other) {
     if(this.x === other.x && this.y === other.y) {
         return true;
@@ -52,7 +59,7 @@ Vector.prototype.deltay = function(vector) {
 
 Vector.prototype.distance = function(vector) {
     var distanceVector = new Vector(this.deltax(vector), this.deltay(vector));
-    return distanceVector.squaredLength();
+    return distanceVector.length();
 }
 
 Vector.prototype.angle = function(vector) {

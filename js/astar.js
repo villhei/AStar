@@ -6,129 +6,142 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var canvas = {};
-var ctx = {};
+var DEBUG = false;
 
-var TYPE = {
-    '255255255':{value:0, name:"OPEN", cost:0},
-    '000':{value:1, name:"WALL", cost:Number.MAX_VALUE},
-    '25500':{value:2, name:"START", cost:0},
-    '00255':{value:3, name:"FINISH", cost:0}
-};
-
-function setupCanvas(canvas2D, image) {
-    var height = image.height;
-    var width = image.width;
-
-    canvas2D.width = width;
-    canvas2D.height = height;
-
-    var ctx = canvas2D.getContext('2d');
-
-    ctx.drawImage(image, 0, 0);
-
+function getLabel(vector) {
+    return vector.toString()
 }
 
-function createGraphArray(canvas) {
 
-    var graphArray = [];
-    for (var i = 0; i < canvas.height; ++i) {
-        graphArray.push([]);
+function popArrayMinimum(array, heuristic) {
+    array = array.sort(function compare(a, b) {
+        var heura = heuristic(a);
+        var heurb = heuristic(b);
+
+        if (heura > heurb) {
+            return 1;
+        }
+        if (heura < heurb) {
+            return -1;
+        }
+        return 0;
+
+    });
+    return array.shift();
+}
+
+
+function findVectorIndex(array, vector) {
+    testVector(vector);
+    if (!TYPE.isArray(array)) {
+        throw new TypeError("Expected an array, got a: " + array);
     }
-    var context = canvas.getContext('2d');
-    var imgData = context.getImageData(0, 0, canvas.width, canvas.height).data;
-
-    for (var i = 0; i < imgData.length; i += 4) {
-        var red = imgData[i];
-        var green = imgData[i + 1];
-        var blue = imgData[i + 2];
-        var color = '' + red + green + blue;
-        var x = calculateX(canvas, i);
-        var y = calculateY(canvas, i);
-        graphArray[y].push(TYPE[color]);
-    }
-    return graphArray;
-}
-
-function calculateX(canvas, i) {
-    return i / 4 % canvas.width;
-}
-
-function calculateY(canvas, i) {
-    return Math.floor(i / 4 / canvas.height);
-}
-
-function findPointByName(graph, name) {
-
-    for (var y = 0; y < graph.length; ++y) {
-        for (var x = 0; x < graph[y].length; ++x) {
-            if (graph[x][y].name == name) {
-                return new Vector(y, x);
+    var index = -1;
+    forEach(array, function find_index(candidate, arrIndex) {
+        if (index === -1) {
+            if (candidate.equals(vector)) {
+                index = arrIndex;
             }
         }
-    }
-    return false;
+    })
+    return index;
 }
 
-function arrayContainsVector(array, value) {
-    for(var i = 0 ; i < array.length ; ++i) {
-        if(array[i].equals(value)) {
-            return true;
-        }
+function arrayContainsVector(array, vector) {
+    testVector(vector);
+    if (!TYPE.isArray(array)) {
+        throw new TypeError("Expected an array, got a: " + array);
     }
-    return false;
-}
-
-function aStar(start, goal, graph) {
-    var evaluatedNodes = [];
-    var priorityQueue = new PriorityQueue();
-
-    priorityQueue.insert(start, 0);
-    var navigatedNodes = [];
-
-    var navigated_cost = 0;
-    var estimated_cost = navigated_cost + costEstimate(start, goal);
-
-    while (!priorityQueue.empty()) {
-        var current_node = priorityQueue.dequeue();
-        if (current_node.x === goal.x && current.node.y === goal.y) {
-            return reconstruct_path(navigatedNodes, goal);
+    var found = false;
+    forEach(array, function vectorEquals(element) {
+        testVector(element);
+        if (vector.equals(element)) {
+            found = true;
         }
-        navigatedNodes.push(current_node);
-        var neighs = findNeigh(graph, node);
-        neighs.forEach(function(element) {
-            if(graph[element.y][element.x].name === "WALL" || arrayContainsVector(navigatedNodes, element)) {
-                continue;
-            }
-
-        })
-    }
-
-
-    return [];
-}
-
-function findNeigh(graph, node) {
-    var found = [];
-    for(var y = node.y-1 ; y < node.y+2; ++y) {
-        for(var x = node.x-1 ; x < node.x+2 ; ++x) {
-            if(withinBounds(x, y, graph)) {
-                found.push(new Vector(x,y));
-            }
-        }
-    }
+    });
     return found;
 }
 
-function withinBounds(x, y, graph) {
-    if(x < 0 || y < 0) {
-        return false;
+function removeVectorFromArray(array, vector) {
+
+    var index = findVectorIndex(array, vector);
+    if (index > -1) {
+        array.splice(index, 1);
     }
-    if(x > graph[0].length-1 || y > graph.length-1 ) {
-        return false;
-    }
-    return true;
+    if(DEBUG) {
+		logStuff(vector, " that from ", array);
+	}
+
 }
+
+function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathWishes) {
+    var openSet = [];
+    openSet.push(start);
+    var closedSet = [];
+    var came_from = {};
+
+    var g_score = {};
+    var f_score = {};
+    var startLabel = getLabel(start);
+    g_score[startLabel] = 0;
+    f_score[startLabel] = g_score[startLabel] + heuristicFunc(start, finish);
+
+    while (openSet.length > 0) {
+        var current = popArrayMinimum(openSet, function appliedHeuristic(candidate) {
+            return heuristicFunc(candidate, finish);
+        });
+        if (current.equals(finish)) {
+            if(DEBUG) {
+				logStuff("VICTORY! CURRENT: ", current, " GOAL:", finish);
+			}
+            return replayPath(current);
+        }
+
+        removeVectorFromArray(openSet, current);
+        closedSet.push(current);
+
+        var currentLabel = getLabel(current);
+
+       var neighbors = Graph.getNeighborghs(current, allowDiagonals);
+        if(DEBUG) {
+			logStuff("found candidates: ", neighbors);
+		}
+        forEach(neighbors, function (element) {
+                    var vectorLabel = getLabel(element);
+                    var tentative_g_score = g_score[currentLabel] + heuristicFunc(current, element);
+                    var tentative_f_score = tentative_g_score + heuristicFunc(element, finish);
+                    if (arrayContainsVector(closedSet, element) && tentative_f_score >= f_score[vectorLabel]) {
+                        return;
+                    }
+                    if (!arrayContainsVector(openSet, element) || tentative_f_score < f_score[vectorLabel]) {
+                        element.parent = current;
+                        g_score[vectorLabel] = tentative_g_score;
+                        f_score[vectorLabel] = tentative_f_score;
+                        if (!arrayContainsVector(openSet, element)) {
+                            if(DEBUG) {
+								logStuff("pushed new : ", element);
+							}
+                            openSet.push(element);
+                        }
+                    }
+                }
+        );
+        if(specialPathWishes) {
+            specialPathWishes(replayPath(current), neighbors);
+        }
+    }
+}
+
+function replayPath(vector) {
+    testVector(vector);
+    var result = [];
+    while (vector.parent) {
+        result.push(vector);
+        vector = vector.parent;
+    }
+    return result;
+}
+
 
 function PriorityQueue() {
 
@@ -186,22 +199,4 @@ function PriorityQueue() {
     }
 }
 
-    function costEstimate(from, to) {
-        return Math.abs(to.x - from.x) + Math.abs(to.y - from.y);
-    }
 
-
-$(document).ready(function () {
-    canvas = document.getElementById('canvas2d');
-    ctx = canvas.getContext('2d');
-    var routeImage = new Image();
-    var graph = [];
-    routeImage.src = 'res/testroute1.png';
-    routeImage.onload = (function () {
-        setupCanvas(canvas, routeImage);
-        graph = new createGraphArray(canvas);
-        var start = findPointByName(graph, "START");
-        var end = findPointByName(graph, "END");
-        var path = aStar(start, end, graph);
-    });
-});
