@@ -1,68 +1,79 @@
 function Vector(x, y) {
+    if(typeof x !== 'number') {
+        throw new TypeError("Expected a number but received", x);
+    }
+    if(typeof y !== 'number') {
+        throw new TypeError("Expected a number but received", y);
+    }
     this.x = x;
     this.y = y;
 }
 
 function testVector(candidate) {
-	if(candidate instanceof Vector) {
-		return true;
-	}
-	return false;
-}
-
-Vector.prototype.equals = function(other) {
-    if(this.x === other.x && this.y === other.y) {
+    if (candidate instanceof Vector) {
         return true;
     }
     return false;
 }
 
-Vector.prototype.dot = function(other) {
+Vector.prototype.equals = function (other) {
+    if (this.x === other.x && this.y === other.y) {
+        return true;
+    }
+    return false;
+}
+
+Vector.prototype.dot = function (other) {
     return this.x * other.x + this.y * other.y;
 };
 
-Vector.prototype.multiply = function(value) {
+Vector.prototype.multiply = function (value) {
     return new Vector(this.x * value, this.y * value);
 };
 
-Vector.prototype.length = function() {
+Vector.prototype.length = function () {
     return Math.sqrt(this.x * this.x + this.y * this.y);
 };
 
-Vector.prototype.squaredLength = function() {
+Vector.prototype.squaredLength = function () {
     return (this.x * this.x + this.y * this.y);
 };
 
-Vector.prototype.normalize = function() {
+Vector.prototype.normalize = function () {
     return new Vector(this.x / this.length(), this.y / this.length());
 };
 
-Vector.prototype.subtract = function(vector) {
+Vector.prototype.subtract = function (vector) {
     return new Vector(this.x - vector.x, this.y - vector.y);
 };
 
-Vector.prototype.add = function(vector) {
+Vector.prototype.add = function (vector) {
     return new Vector(this.x + vector.x, this.y + vector.y);
 };
 
-Vector.prototype.divide = function(value) {
+Vector.prototype.divide = function (value) {
     return new Vector(this.x / value, this.y / value)
 };
 
-Vector.prototype.deltax = function(vector) {
+Vector.prototype.deltax = function (vector) {
     return this.x - vector.x;
 };
 
-Vector.prototype.deltay = function(vector) {
+Vector.prototype.deltay = function (vector) {
     return this.y - vector.y;
 };
 
-Vector.prototype.distance = function(vector) {
+Vector.prototype.distance = function (vector) {
     var distanceVector = new Vector(this.deltax(vector), this.deltay(vector));
     return distanceVector.length();
 }
 
-Vector.prototype.angle = function(vector) {
+Vector.prototype.squaredDistance = function (vector) {
+    var distanceVector = new Vector(this.deltax(vector), this.deltay(vector));
+    return distanceVector.squaredLength();
+}
+
+Vector.prototype.angle = function (vector) {
     var deltaX = vector.x - this.x;
     var deltaY = vector.y - this.y;
     return Math.atan2(deltaX, deltaY) * 180 / Math.PI;

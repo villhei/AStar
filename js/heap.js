@@ -9,6 +9,11 @@ function Heap() {
     this._elements = [];
 
     function Node(value, weight) {
+        if(weight) {
+            if(typeof weight !== 'number') {
+                throw new TypeError("Expected weight to be a number, instead received", weight);
+            }
+        }
         this.value = value;
         this.weight = weight ? weight : value;
     }
@@ -56,34 +61,33 @@ function Heap() {
     }
 
     this.heapify = function (index) {
-        var left = left(index);
-        var right = right(index);
+        var l = left(index);
+        var r = right(index);
         var arr = this._elements;
-        if (right <= arr.length) {
-            if (arr[left].weight > arr[right].weight) {
-                var largest = left;
+        if (r <= arr.length) {
+            if (arr[l].weight > arr[r].weight) {
+                var largest = l;
             } else {
-                var largest = right;
+                var largest = r;
             }
             if (arr[index].weight < arr[largest].weight) {
                 swap(index, largest);
                 this.heapify(largest);
             }
-        } else if (left == arr.length && arr[index].weight < arr[left].weight) {
-            swap(index, left);
+        } else if (l == arr.length && arr[index].weight < arr[l].weight) {
+            swap(index, l);
         }
     }
 
     this.insert = function (value, weight) {
 
-        var newElem = new Node(value, weight);
         var arr = this._elements;
         var index = arr.length;
-        while (index > 0 && arr[parent(index)].weight < newElem.weight) {
+        while (index > 0 && arr[parent(index)].weight < weight) {
             arr[index] = arr[parent(index)];
             index = parent(index);
         }
-        arr[index] = newElem;
+        arr[index] = new Node(value, weight);
     }
 
     this.getMinimum = function () {
@@ -99,7 +103,7 @@ function Heap() {
         if (this.empty()) {
             return null;
         }
-        var value = arr.splice(arr.length - 1, 1)[0].value;
+        var value = arr.splice(arr.length-1, 1)[0].value;
         return value;
     }
 
@@ -114,8 +118,8 @@ function Heap() {
         if (this.empty()) {
             return null;
         }
-        var max = this._elements.splice(0, 1)[0].value;
-        return max;
+        var max = this._elements.shift();
+        return max.value;
 
     }
 
@@ -128,7 +132,12 @@ function Heap() {
     }
 
     this.getArray = function () {
-        return this._elements.splice(0);
+        var result = [];
+
+        this._elements.forEach(function(element) {
+            result.push(element.value);
+        });
+        return result;
     }
 
 }

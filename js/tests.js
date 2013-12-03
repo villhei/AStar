@@ -29,19 +29,21 @@ test("Arrays and vectors", function () {
 test("MinHeap functionality with simple values", function() {
     var heap = new Heap();
     equal(heap.empty(), true, "Initial heap should be empty");
-    heap.insert(5);
+
+    heap.insert(3);
     equal(heap.empty(), false, "heap should not be empty anymore");
     heap.insert(6);
     heap.insert(1);
     heap.insert(2);
-    heap.insert(3);
+    heap.insert(5);
+    deepEqual(heap.getArray(), [6,5,3,2,1], "should equal to test array");
     equal(heap.contains(1) >= 0, true, "Should find 1 in the heap");
     equal(heap.contains(6) >= 0, true, "Should find 6 in the heap");
-
     equal(heap.contains(10) > 0, false, "Should not find 10 in the heap");
     equal(heap.size(), 5, "Should be the size of 5 after initial inserts");
     equal(heap.getMinimum(), 1, "Should return 1 as smallest element");
     equal(heap.removeMinimum(), 1, "1 Should be the first removed");
+    equal(heap.contains(1) < 0, true, "Should not find 1 in the heap");
     equal(heap.getMinimum(), 2, "Should return 2 as smallest after 1 has been removed");
     equal(heap.getMaximum(), 6, "Should return 6 as largest element");
     equal(heap.removeMaximum(), 6, "Should return 6 as largest removed");
@@ -56,11 +58,34 @@ test("MinHeap functionality with simple values", function() {
 
 });
 
+test("Heap retains order", function() {
+    var heap = new Heap();
+    heap.insert("a", 1);
+    heap.insert("b", 2);
+    heap.insert("c", 3);
+    heap.insert("d", 4);
+
+    deepEqual(heap.getArray(), ["d","c","b","a"], "should equal to test array");
+    equal(heap.getMinimum(), "a", "a should be the minimum value");
+})
+
+test("Heap retains order again", function() {
+    var heap = new Heap();
+    heap.insert("c", 3);
+    heap.insert("d", 4);
+    heap.insert("a", 1);
+    heap.insert("e", 5);
+    heap.insert("b", 2);
+
+    deepEqual(heap.getArray(), ["e","d","c","b","a"], "should equal to test array");
+    equal(heap.getMinimum(), "a", "a should be the minimum value");
+})
+
 test("MinHeap functionality with some complexicity from vectors", function() {
     var heap = new Heap();
 
     function vectorDistance(from, to) {
-        return from.distance(to);
+        return from.squaredDistance(to);
     }
 
     function vectorEqual(a, b) {
@@ -83,66 +108,24 @@ test("MinHeap functionality with some complexicity from vectors", function() {
 
 });
 
-test("Test queue", function () {
+test("MinHeap functionality with some challenging cases", function() {
+    var heap = new Heap();
 
-    var queue = new PriorityQueue();
-    queue.insert("small value", 0);
-    queue.insert("bigger value", 1);
-    queue.insert("biggest value", 2);
-    queue.insert("smallest value", -1);
-    equal(4, queue.length, "Length should be the same as inserted")
-    var smallest = queue.dequeue();
-    var small = queue.dequeue();
-    equal(smallest, "smallest value", "Should dequeue right value");
-    equal(small, "small value", "Should dequeue 2nd smallest after smallest");
-    queue.insert("huge value", 10);
-    queue.insert("extra small value", -10);
-
-    var xtrasmall = queue.dequeue();
-    equal(xtrasmall, "extra small value", "Should dequeue new xtrasmall");
-    equal(3, queue.length, "Length should be the same as inserted-dequeued")
-    var bigger = queue.dequeue();
-    equal(bigger, "bigger value", "Expect right ordering");
-    var biggest = queue.dequeue();
-    equal(biggest, "biggest value", "Expected right ordering");
-    var huge = queue.dequeue();
-    equal(huge, "huge value", "last one dequeued");
-    equal(0, queue.length, "queue should be empty");
-
-});
-
-
-test("Verify priotity queues priority", function () {
-    var queue = new PriorityQueue();
-
-    queue.insert("O", 3);
-    queue.insert("R", 4);
-    queue.insert("I", 5);
-    queue.insert("Q", 8);
-    queue.insert("U", 9);
-    queue.insert("E", 10);
-    queue.insert("U", 11);
-    queue.insert("E", 12);
-    queue.insert("P", 0);
-    queue.insert("R", 1);
-    queue.insert("I", 2);
-    queue.insert("T", 6);
-    queue.insert("Y", 7);
-
-
-    var valueList = ["P", "R", "I", "O", "R", "I", "T", "Y", "Q", "U", "E", "U", "E"];
-    var actual = queue.valueList();
-
-    deepEqual(actual, valueList, "Expected right order of values");
-    equal(queue.length, valueList.length, "Expected right length");
-
-    var actualValues = [];
-    for (var i = 0; i < valueList.length; ++i) {
-        actualValues.push(queue.dequeue());
+    function vectorDistance(from, to) {
+        return from.distance(to);
     }
 
-    deepEqual(actualValues, valueList, "Expected right dequeue order");
-    equal(queue.length, 0, "Expected empty queue");
+    function vectorEqual(a, b) {
+        return a.equals(b);
+    }
+
+    var finish = new Vector(3,3);
+    var veca = new Vector(0,1);
+    var vecc = new Vector(0,5);
+    heap.insert(veca, vectorDistance(veca, finish));
+    heap.insert(vecc, vectorDistance(vecc, finish));
+
+    equal(vectorEqual(heap.getMaximum(), veca), true, "Should return Vector a as the longest distance vector");
+    equal(vectorEqual(heap.getMinimum(), vecc), true, "Should return Vector c as the shortest distance vector");
 
 });
-

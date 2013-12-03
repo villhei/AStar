@@ -6,6 +6,7 @@
 <script type="text/javascript" src="lib/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="js/vector.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/heap.js"></script>
 <script type="text/javascript" src="js/astar.js"></script>
 <link type="text/css" rel="stylesheet" href="css/graph.css" />
 
@@ -33,32 +34,6 @@
 </body>
 
 <script>
-
-
-//
-//Graph.array = [
-//    ['0', 'w', '0', '0', 'w'],
-//    ['0', 'w', '0', '0', 'w'],
-//    ['0', 'w', '0', '0', '0'],
-//    ['0', 'w', 'w', 'w', '0'],
-//    ['0', '0', '0', '0', '0']
-//];
-//
-///*
-// Initial debug print
-// */
-//logStuff("**** FROM START");
-//
-//var start = new Vector(0, 0);
-//var finish = new Vector(2, 0);
-//Graph.setGraphPoint(start, 'S');
-//Graph.setGraphPoint(finish, 'F');
-//
-//Graph.print($('#graphstart'));
-//
-//var path = aStar(Graph, start, finish);
-//
-//Graph.print($('#graphfinish'), path, 'x');
 
 var Graph = {
     array:[],
@@ -202,7 +177,7 @@ function manhattanDistance(from, to) {
 }
 
 function vectorDistance(from, to) {
-    return from.distance(to);
+    return from.squaredDistance(to);
 }
 
 var start = new Vector(0, 0);
@@ -218,11 +193,11 @@ var partialOpenSet = [];
 
 function recordPathIterations(pathData, openSet) {
     partialPath.push(pathData);
-    partialOpenSet.push(openSet.slice(0));
+    partialOpenSet.push(openSet.getArray());
 }
 
 
-var path = aStar(Graph, start, finish, vectorDistance, true, recordPathIterations);
+var path = aStar(Graph, start, finish, vectorDistance, false, recordPathIterations);
 
 
 setInterval(function drawPathElementByElement(path) {
@@ -242,7 +217,6 @@ setInterval(function drawPathElementByElement(path) {
     }
 
 }, 500);
-
 
 Graph.print($('#graphfinish'), path, 'x');
 
