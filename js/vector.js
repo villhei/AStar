@@ -52,26 +52,21 @@ Vector.prototype.divide = function (value) {
     return new Vector(this.x / value, this.y / value)
 };
 
-Vector.prototype.deltax = function (vector) {
-    return this.x - vector.x;
-};
-
-Vector.prototype.deltay = function (vector) {
-    return this.y - vector.y;
-};
 
 Vector.prototype.distance = function (vector) {
-    var distanceVector = new Vector(this.deltax(vector), this.deltay(vector));
-    return distanceVector.length();
+    return this.subtract(vector).length();
 }
 
 Vector.prototype.squaredDistance = function (vector) {
-    var distanceVector = new Vector(this.deltax(vector), this.deltay(vector));
-    return distanceVector.squaredLength();
+    return this.subtract(vector).squaredLength();
 }
 
 Vector.prototype.angle = function (vector) {
     var deltaX = vector.x - this.x;
     var deltaY = vector.y - this.y;
     return Math.atan2(deltaX, deltaY) * 180 / Math.PI;
+}
+
+Vector.prototype.toString = function() {
+    return "Vector (" +this.x + "," + this.y + ")";
 }

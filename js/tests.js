@@ -6,26 +6,6 @@
  * To change this template use File | Settings | File Templates.
  */
 
-test("Arrays and vectors", function () {
-    var vecArr = [
-        new Vector(0, 0),
-        new Vector(1, 1),
-        new Vector(2, 2),
-        new Vector(3, 3),
-    ]
-
-    equal(arrayContainsVector(vecArr, new Vector(0, 0)), true);
-    equal(findVectorIndex(vecArr, new Vector(2, 2)), 2);
-    removeVectorFromArray(vecArr, new Vector(2, 2))
-    equal(findVectorIndex(vecArr, new Vector(2, 2)), -1);
-    equal(arrayContainsVector(vecArr, new Vector(2, 2)), false);
-    equal(arrayContainsVector(vecArr, new Vector(0, 0)), true);
-    equal(arrayContainsVector(vecArr, new Vector(1, 1)), true);
-    equal(arrayContainsVector(vecArr, new Vector(3, 3)), true);
-    equal(arrayContainsVector(vecArr, new Vector(1, 3)), false);
-
-});
-
 test("MinHeap functionality with simple values", function() {
     var heap = new Heap();
     equal(heap.empty(), true, "Initial heap should be empty");
@@ -51,6 +31,26 @@ test("MinHeap functionality with simple values", function() {
     equal(heap.removeMinimum(), 6, "Should return 6 as smallest after 1 has been removed");
     equal(heap.empty(), true, "heap should be empty after everything was removed");
     equal(heap.getMinimum(), null, "Should return null as smallest element after heap is empty");
+
+});
+
+test("MinHeap decreases with simple values", function() {
+    var heap = new Heap();
+
+    heap.insert("a", 1);
+    heap.insert("b", 2);
+    heap.insert("c", 3);
+    heap.insert("d", 4);
+    heap.insert("e", 5);
+    heap.insert("f", 6);
+
+    heap.decreaseKey(heap.contains("f"), -1);
+    equal(heap.getMinimum(), "f", "Should return f as smallest weight is -1");
+    heap.decreaseKey(heap.contains("e"), -2);
+    heap.decreaseKey(heap.contains("a"), -10);
+    equal(heap.getMinimum(), "a", "Should return a as smallest weight is -10");
+    equal(heap.removeMinimum(), "a", "Should be a the first removed");
+    equal(heap.getMinimum(), "e", "Should return e as smallest weight is -2");
 
 });
 

@@ -109,6 +109,17 @@ function Heap() {
 
     }
 
+    this.decreaseKey = function(index, newWeight) {
+        var arr = this._elements;
+        if(newWeight < arr[index].weight) {
+            arr[index].weight = newWeight;
+            while(index > 0 && arr[parentOf(index)].weight > arr[index].weight) {
+                this.swap(index, parentOf(index));
+                index = parentOf(index);
+            }
+        }
+    }
+
     this.size = function () {
         return this._elements.length;
     }
