@@ -61,33 +61,34 @@ function Heap() {
     }
 
     this.heapify = function (index) {
-        var l = left(index);
-        var r = right(index);
+        var left = left(index);
+        var right = right(index);
         var arr = this._elements;
-        if (r <= arr.length) {
-            if (arr[l].weight > arr[r].weight) {
-                var largest = l;
+        if (right <= arr.length) {
+            if (arr[left].weight > arr[right].weight) {
+                var largest = left;
             } else {
-                var largest = r;
+                var largest = right;
             }
             if (arr[index].weight < arr[largest].weight) {
                 swap(index, largest);
                 this.heapify(largest);
             }
-        } else if (l == arr.length && arr[index].weight < arr[l].weight) {
-            swap(index, l);
+        } else if (left == arr.length && arr[index].weight < arr[left].weight) {
+            swap(index, left);
         }
     }
 
     this.insert = function (value, weight) {
 
+        var newElem = new Node(value, weight);
         var arr = this._elements;
         var index = arr.length;
-        while (index > 0 && arr[parent(index)].weight < weight) {
+        while (index > 0 && arr[parent(index)].weight < newElem.weight) {
             arr[index] = arr[parent(index)];
             index = parent(index);
         }
-        arr[index] = new Node(value, weight);
+        arr[index] = newElem;
     }
 
     this.getMinimum = function () {
