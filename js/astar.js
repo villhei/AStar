@@ -89,12 +89,14 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
     var startLabel = getLabel(start);
     g_score[startLabel] = 0;
     f_score[startLabel] = g_score[startLabel] + heuristicFunc(start, finish);
-
+    var steps = 0;
     while (!openSet.empty()) {
+        steps++;
         var current = openSet.removeMinimum();
         if (current.equals(finish)) {
             if (DEBUG) {
                 logStuff("VICTORY! CURRENT: ", current, " GOAL:", finish);
+                logStuff("Took: ", steps, " steps")
             }
             return replayPath(current);
         }

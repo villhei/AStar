@@ -17,10 +17,7 @@ function testVector(candidate) {
 }
 
 Vector.prototype.equals = function (other) {
-    if (this.x === other.x && this.y === other.y) {
-        return true;
-    }
-    return false;
+    return (this.x === other.x && this.y === other.y);
 }
 
 Vector.prototype.dot = function (other) {
