@@ -115,7 +115,7 @@ var Graph = {
             new Vector(position.x, position.y - 1), // DOWN
             new Vector(position.x, position.y + 1)  // UP
         ];
-        if(allowDiagonals) {
+        if(allowDiagonals === true) {
             candidates.push(new Vector(position.x-1, position.y-1)); // TOP LEFT
             candidates.push(new Vector(position.x+1, position.y-1)); // TOP RIGHT
             candidates.push(new Vector(position.x-1, position.y+1)); // BOTTOM LEFT
@@ -173,14 +173,16 @@ Graph.array = getGraph();
 
 
 function manhattanDistance(from, to) {
-    return Math.abs(to.x - from.x) + Math.abs(to.y - from.y);
+    var d1 = Math.abs(to.x - from.x);
+    var d2 = Math.abs(to.y - from.y);
+    return d1+d2;
 }
 
 function vectorDistance(from, to) {
     if(!testVector(from) || !testVector(to)) {
         throw new TypeError("Expected vector");
     }
-    return Math.sqrt(Math.pow(Math.abs(from.x-to.x), 2) + Math.pow(Math.abs(from.y-to.y)), 2);
+    return (Math.pow(from.x-to.x, 2) + Math.pow(from.y-to.y, 2));
 }
 
 var start = new Vector(0, 0);

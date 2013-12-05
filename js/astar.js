@@ -38,10 +38,10 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
 
     var g_score = {};
     var f_score = {};
-    g_score[start] = 0;
-    f_score[start] = g_score[start] + heuristicFunc(start, finish);
-    openSet.insert(start, f_score[start]);
-
+    var startLabel = getLabel(start);
+    g_score[startLabel] = 0;
+    f_score[startLabel] = g_score[startLabel] + heuristicFunc(start, finish);
+    openSet.insert(start, 0);
     var steps = 0;
     while (!openSet.empty()) {
         steps++;
@@ -55,7 +55,7 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
         }
 
         evaluatedNodes.push(current);
-        var neighbors = Graph.getNeighborghs(current, allowDiagonals);
+        var neighbors = graph.getNeighborghs(current, allowDiagonals);
         neighbors.forEach(function (neighbor) {
                 neighbor.parent = current;
                 var tentative_g_score = g_score[current] + heuristicFunc(current, neighbor);
@@ -64,17 +64,22 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
                     return;
                 }
                 var position = openSet.contains(neighbor, vectorEquals);
-                if (position === -1 || tentative_f_score < f_score[neighbor]) {
+                if (position === -1 || tentative_f_score <= f_score[neighbor]) {
 
                     g_score[neighbor] = tentative_g_score;
+                    if(!g_score) {
+                        alert(g_score);
+                    }
                     f_score[neighbor] = tentative_f_score;
+                    if(!g_score) {
+                        alert(g_score);
+                    }
                     if (position > -1) {
                         if (DEBUG) {
                             logStuff("pushed new : ", neighbor);
                         }
                         openSet.decreaseKey(position, f_score[neighbor]);
                     } else {
-                        console.log("decreased key")
                         openSet.insert(neighbor, f_score[neighbor]);
                     }
                 }
