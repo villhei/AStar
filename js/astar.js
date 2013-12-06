@@ -40,17 +40,13 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
     var f_score = {};
     var startLabel = getLabel(start);
     g_score[startLabel] = 0;
-    f_score[startLabel] = g_score[startLabel] + heuristicFunc(start, finish);
+    f_score[startLabel] = g_score[startLabel];
     openSet.insert(start, 0);
     var steps = 0;
     while (!openSet.empty()) {
         steps++;
         var current = openSet.removeMinimum();
         if (current.equals(finish)) {
-            if (DEBUG) {
-                logStuff("VICTORY! CURRENT: ", current, " GOAL:", finish);
-                logStuff("Took: ", steps, " steps")
-            }
             return replayPath(current);
         }
 
@@ -75,9 +71,6 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
                         alert(g_score);
                     }
                     if (position > -1) {
-                        if (DEBUG) {
-                            logStuff("pushed new : ", neighbor);
-                        }
                         openSet.decreaseKey(position, f_score[neighbor]);
                     } else {
                         openSet.insert(neighbor, f_score[neighbor]);
@@ -90,7 +83,6 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
             specialPathWishes(replayPath(current), openSet);
         }
     }
-    logStuff("error, did not find path");
 }
 
 function replayPath(vector) {

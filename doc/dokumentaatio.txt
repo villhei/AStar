@@ -1,0 +1,57 @@
+Määrittely
+----------
+
+AStar ratkaisee lyhyimmän reitin verkossa.
+
+AStar ratkaisee verkon G<V, E> lyhyimmän reitin huonoimmassa tapauksessa ajassa
+O(|E|) ja tilavaatimuksella O(|V|). Algoritmi käsittelee jokaisella kierroksella
+verkon pisteet keko-tietorakenteella, jonka käytetyt operaatiot toimivat huonoimmillaan
+ajassa O(log |V|).
+
+Tarkka aikavaatimus on O(log n*n) ja tilavaatimus O(n).
+
+
+Toteutus
+--------
+
+AStar-toteutukseni toimii pääpiirteittäin luvatulla nopeudella. Toteutusta hidastaa
+Heap-toteutukseni contains -operaatio, joka toimii ajassa O(n). Toteutusta voisi nopeuttaa
+käyttämällä erillistä hajautustaulukkoa tai muuta vakioaikaista tietorakennetta
+erikseen Nodejen taulukkotarkistuksia varten.
+
+Algoritmi toimii jotakuinkin näin:
+
+    aStar
+        lisää alkusolmu kekoon O(log n)
+        jokaiselle keon päällimmäiselle solmulle {
+                hae naapurit {
+                    onko naapuri maali -> jos, valmis
+                    tarkista etäisyys naapurista maaliin ja kuljettu matka
+                    tarkista, jos naapuri on keossa O(n)
+                        jos ei, lisää naapuri O(log n)
+                        tai laske naapurin avainta O(1)
+                    }
+        }
+
+Testausdokumentti
+-----------------
+
+Testauksessa on käytetty TDD-mentaliteetilla qUnit -testauksia selkeimmin testausta vaativille
+osille, kuten esimerkiksi toteutuksen vaatimalle Heap-tietorakenteelle. Itse algoritmin testaus
+on tapahtunut pääosin debug-logituksilla. Algoritmia oli hankala toteuttaa niin pienissä osissa
+että yksikkötestaus olisi ollut mielekkään vaivan takana.
+
+Heapin toiminnalle testaus oli erittäin pakollista.
+
+Algoritmia on testatta valmiiksi määritellyillä taulukoilla ja useammalla eri reittiheuristiikalla.
+
+Heuristiikkafunktioita on graph.js -tiedostossa tarjolla seuraavia:
+
+manhattanDistance(Vector i, Vector j)
+diagonalDistance(Vector i, Vector j)
+euclidianDistance(Vector i, Vector j)
+
+
+... joista kaikki tuottavat lyhyimmän reitin
+
+
