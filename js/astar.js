@@ -31,7 +31,6 @@ function arrayContainsVector(array, vector) {
 function vectorEquals(a, b) {
     return a.equals(b);
 }
-
 function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathWishes) {
     var openSet = new Heap();
     var evaluatedNodes = [];
@@ -47,6 +46,7 @@ function aStar(graph, start, finish, heuristicFunc, allowDiagonals, specialPathW
         steps++;
         var current = openSet.removeMinimum();
         if (current.equals(finish)) {
+            console.log("took: " + steps + " steps");
             return replayPath(current);
         }
 
